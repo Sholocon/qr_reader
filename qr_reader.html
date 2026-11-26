@@ -38,7 +38,6 @@
 
     .app { display: flex; min-height: 100vh; }
 
-    /* ===== Sidebar ===== */
     .sidebar {
       width: var(--sidebar-w);
       background: rgba(15, 23, 42, 0.95);
@@ -144,12 +143,16 @@
     .fav-item .fav-content {
       word-break: break-all;
       white-space: pre-wrap;
-      max-height: 52px;
-      overflow: hidden;
-      line-height: 1.4;
+      line-height: 1.45;
       color: var(--text-muted);
       font-size: 0.8rem;
     }
+    .fav-item .fav-content a {
+      color: #a5b4fc;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .fav-item .fav-content a:hover { text-decoration: underline; }
 
     .fav-item .fav-remove {
       position: absolute;
@@ -167,7 +170,6 @@
     }
     .fav-item .fav-remove:hover { background: rgba(251,191,36,0.15); }
 
-    /* ===== Main ===== */
     .main {
       flex: 1;
       margin-left: var(--sidebar-w);
@@ -302,7 +304,6 @@
       letter-spacing: 0.03em;
     }
 
-    /* 名稱列：顯示模式 / 編輯模式 */
     .name-row {
       display: flex;
       align-items: center;
@@ -338,9 +339,7 @@
       white-space: nowrap;
       transition: background 0.2s;
     }
-    .edit-name-btn:hover {
-      background: rgba(99,102,241,0.3);
-    }
+    .edit-name-btn:hover { background: rgba(99,102,241,0.3); }
 
     .name-input {
       flex: 1;
@@ -664,7 +663,7 @@
         <header>
           <h1 id="i18n-title">QR Code 即時解讀</h1>
           <p class="subtitle" id="i18n-subtitle">貼上 / 上傳 / 掃描 → 自動解讀（支援網址・文字・簡訊・電話・Email・WiFi）</p>
-          <p class="star-hint" id="i18n-star-hint">提示：點擊右上角 ★ 可加入書籤；點擊黃色★解除書籤</p>
+          <p class="star-hint" id="i18n-star-hint">提示：點擊右上角 ★ 可加入書籤</p>
         </header>
 
         <div id="currentResult" class="current-result empty">
@@ -728,7 +727,7 @@
         confirmClear: '確定要清除所有歷史記錄？',
         addedFav: '已加入書籤',
         removedFav: '已移除書籤',
-        rename: '更改名稱',
+        rename: '改名',
         save: '儲存',
         cancel: '取消',
         unnamed: '未命名',
@@ -875,12 +874,10 @@
     let cameraStream = null;
     let scanning = false;
     let sidebarOpen = true;
-    // 正在編輯名稱的 id（同一時間只編一個）
     let editingNameId = null;
 
     function parseQR(text) {
       text = text.trim();
-
       if (text.toUpperCase().startsWith('WIFI:')) {
         const parts = {};
         text.slice(5).split(';').forEach(p => {
@@ -986,19 +983,57 @@
       return t('type_' + type) || type;
     }
 
-    // ===== Rename（按掣先改）=====
+    /** 將文字中的 http(s) 網址轉成可點連結 */
+    function linkify(text) {
+      const s = String(text || '');
+      const re = /(https?:\/\/[^\s<]+)/g;
+      let result = '';
+      let last = 0;
+      let m;
+      while ((m = re.exec(s)) !== null) {
+        result += escapeHtml(s.slice(last, m.index));
+        const url = m[1];
+        result += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`;
+        last = m.index + url.length;
+      }
+      result += escapeHtml(s.slice(last));
+      return result;
+    }
+
+    /** 書籤內容：按類型顯示可點 hyperlink */
+    function renderFavContent(item) {
+      const d = item.data || {};
+      if (item.type === '網址' && d.url) {
+        return `<a href="${escapeHtml(d.url)}" target="_blank" rel="noopener">${escapeHtml(d.url)}</a>`;
+      }
+      if (item.type === '電話' && d.number) {
+        return `<a href="tel:${escapeHtml(d.number)}">${escapeHtml(d.number)}</a>`;
+      }
+      if (item.type === 'Email' && d.to) {
+        let html = `<a href="mailto:${escapeHtml(d.to)}">${escapeHtml(d.to)}</a>`;
+        if (d.subject) html += `<br>${escapeHtml(d.subject)}`;
+        return html;
+      }
+      if (item.type === '簡訊' && d.number) {
+        let html = `<a href="sms:${escapeHtml(d.number)}">${escapeHtml(d.number)}</a>`;
+        if (d.body) html += `<br>${escapeHtml(d.body)}`;
+        return html;
+      }
+      if (item.type === 'WiFi') {
+        return escapeHtml(`SSID: ${d.ssid || ''}` + (d.password ? ` / ${d.password}` : ''));
+      }
+      // 文字或其他：自動把 URL 變連結
+      return linkify(item.raw || d.text || '');
+    }
+
     function startEditName(id) {
       editingNameId = id;
       renderCurrent();
       renderHistory();
       renderFavorites();
-      // focus input
       setTimeout(() => {
         const input = document.querySelector(`input.name-input[data-id="${id}"]`);
-        if (input) {
-          input.focus();
-          input.select();
-        }
+        if (input) { input.focus(); input.select(); }
       }, 30);
     }
 
@@ -1022,8 +1057,7 @@
       renderFavorites();
     }
 
-    /** 顯示模式 or 編輯模式 */
-    function nameRowHtml(item, compact = false) {
+    function nameRowHtml(item) {
       const hasName = !!(item.customName && item.customName.trim());
       if (editingNameId === item.id) {
         return `
@@ -1037,7 +1071,6 @@
           </div>
         `;
       }
-      // 顯示模式
       const label = hasName
         ? `<span class="name-display">${escapeHtml(item.customName)}</span>`
         : `<span class="name-display placeholder">${t('unnamed')}</span>`;
@@ -1049,7 +1082,6 @@
       `;
     }
 
-    // ===== Bookmarks =====
     function isBookmarked(id) {
       return favorites.some(f => f.id === id);
     }
@@ -1062,7 +1094,6 @@
         const fromHist = history.find(h => h.id === item.id);
         if (fromHist) latest = fromHist;
       }
-
       const idx = favorites.findIndex(f => f.id === item.id);
       if (idx >= 0) {
         favorites.splice(idx, 1);
@@ -1096,9 +1127,6 @@
       }
 
       list.innerHTML = favorites.map(item => {
-        let preview = item.raw || '';
-        if (preview.length > 90) preview = preview.slice(0, 90) + '…';
-
         const hasName = !!(item.customName && item.customName.trim());
         let nameBlock = '';
         if (editingNameId === item.id) {
@@ -1131,7 +1159,7 @@
               <span>${formatTime(item.time)}</span>
             </div>
             ${nameBlock}
-            <div class="fav-content">${escapeHtml(preview)}</div>
+            <div class="fav-content">${renderFavContent(item)}</div>
           </div>
         `;
       }).join('');
@@ -1140,7 +1168,6 @@
     function renderStructured(parsed, idPrefix = '') {
       const d = parsed.data;
       let html = '<div class="structured">';
-
       if (parsed.type === 'WiFi') {
         html += `
           <div class="row"><span class="label">${t('label_ssid')}</span><span class="value">${escapeHtml(d.ssid)} <button class="copy-btn" onclick="copyText('${escapeHtml(d.ssid)}')">${t('copy')}</button></span></div>
