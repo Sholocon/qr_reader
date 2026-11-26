@@ -17,41 +17,209 @@
       --text: #f1f5f9;
       --text-muted: #94a3b8;
       --success: #34d399;
+      --sidebar-w: 280px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", "Noto Sans JP", sans-serif;
       background: var(--bg1);
       color: var(--text);
       min-height: 100vh;
-      padding: 20px 16px 40px;
       line-height: 1.55;
-      /* 幾何圖案背景 */
       background-image: 
         radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
         radial-gradient(circle at 80% 70%, rgba(129, 140, 248, 0.1) 0%, transparent 40%),
         linear-gradient(135deg, #0b1120 0%, #111827 50%, #0f172a 100%),
-        repeating-linear-gradient(
-          45deg,
-          transparent,
-          transparent 20px,
-          rgba(148, 163, 184, 0.02) 20px,
-          rgba(148, 163, 184, 0.02) 40px
-        );
+        repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(148, 163, 184, 0.02) 20px, rgba(148, 163, 184, 0.02) 40px);
       background-attachment: fixed;
     }
 
-    .container {
-      max-width: 700px;
-      margin: 0 auto;
+    .app { display: flex; min-height: 100vh; }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 50;
+      transition: transform 0.28s ease;
+    }
+    .sidebar.collapsed { transform: translateX(-100%); }
+
+    .sidebar-header {
+      padding: 18px 16px 12px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 28px;
+    .sidebar-header h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #a5b4fc, #c4b5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
+
+    .sidebar-count {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: rgba(99,102,241,0.15);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .fav-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .fav-empty {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      text-align: center;
+      padding: 40px 12px;
+      line-height: 1.6;
+    }
+
+    .fav-item {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      padding-right: 38px;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .fav-item:hover {
+      border-color: rgba(148,163,184,0.3);
+      background: rgba(30,41,59,0.85);
+    }
+
+    .fav-item .fav-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .fav-item .fav-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      min-height: 28px;
+    }
+
+    .fav-item .fav-name {
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: #e2e8f0;
+      word-break: break-all;
+      flex: 1;
+      min-width: 0;
+    }
+    .fav-item .fav-name.placeholder {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 0.82rem;
+    }
+
+    .fav-item .fav-content {
+      word-break: break-all;
+      white-space: pre-wrap;
+      max-height: 52px;
+      overflow: hidden;
+      line-height: 1.4;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .fav-item .fav-remove {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: #fbbf24;
+      font-size: 1.15rem;
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 6px;
+      line-height: 1;
+      z-index: 2;
+    }
+    .fav-item .fav-remove:hover { background: rgba(251,191,36,0.15); }
+
+    /* ===== Main ===== */
+    .main {
+      flex: 1;
+      margin-left: var(--sidebar-w);
+      padding: 16px 16px 40px;
+      min-width: 0;
+      transition: margin-left 0.28s ease;
+    }
+    .main.sidebar-collapsed { margin-left: 0; }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .menu-btn {
+      display: flex;
+      background: rgba(30,41,59,0.85);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      font-size: 1.25rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .menu-btn:hover {
+      background: rgba(51,65,85,0.95);
+      border-color: var(--accent);
+    }
+
+    .lang-select {
+      background: rgba(30,41,59,0.8);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+    }
+    .lang-select:hover { border-color: var(--accent); }
+
+    .container { max-width: 700px; margin: 0 auto; }
+
+    header { text-align: center; margin-bottom: 22px; }
 
     header h1 {
       font-size: 1.75rem;
@@ -62,24 +230,31 @@
       letter-spacing: -0.02em;
     }
 
-    header p {
+    header p.subtitle {
       color: var(--text-muted);
       font-size: 0.92rem;
       margin-top: 6px;
     }
 
-    /* 目前結果 */
+    header p.star-hint {
+      color: #a5b4fc;
+      font-size: 0.82rem;
+      margin-top: 10px;
+      opacity: 0.95;
+    }
+
     .current-result {
       background: var(--card);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--card-border);
       border-radius: 20px;
-      padding: 22px;
+      padding: 20px 20px 22px;
       margin-bottom: 22px;
       min-height: 150px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.3);
       transition: all 0.3s ease;
+      position: relative;
     }
 
     .current-result.empty {
@@ -90,13 +265,31 @@
       font-size: 0.95rem;
     }
 
+    .star-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 5;
+      background: transparent;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 4px 6px;
+      line-height: 1;
+      color: rgba(148,163,184,0.4);
+      transition: color 0.2s, transform 0.15s;
+    }
+    .star-btn:hover { color: #fbbf24; transform: scale(1.12); }
+    .star-btn.active { color: #fbbf24; }
+
     .result-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       font-size: 0.8rem;
       color: var(--text-muted);
+      padding-right: 42px;
     }
 
     .result-type {
@@ -107,6 +300,85 @@
       font-weight: 600;
       font-size: 0.78rem;
       letter-spacing: 0.03em;
+    }
+
+    /* 名稱列：顯示模式 / 編輯模式 */
+    .name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      min-height: 36px;
+      padding-right: 8px;
+    }
+
+    .name-display {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      word-break: break-all;
+    }
+    .name-display.placeholder {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 0.88rem;
+    }
+
+    .edit-name-btn {
+      flex-shrink: 0;
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.25);
+      color: #a5b4fc;
+      font-size: 0.78rem;
+      padding: 5px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .edit-name-btn:hover {
+      background: rgba(99,102,241,0.3);
+    }
+
+    .name-input {
+      flex: 1;
+      min-width: 0;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .name-input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+
+    .name-save-btn {
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      border: none;
+      color: white;
+      font-size: 0.78rem;
+      padding: 7px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .name-cancel-btn {
+      flex-shrink: 0;
+      background: rgba(51,65,85,0.8);
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      padding: 7px 10px;
+      border-radius: 8px;
+      cursor: pointer;
     }
 
     .result-content {
@@ -140,7 +412,6 @@
     }
     .expand-btn:hover { text-decoration: underline; }
 
-    /* 結構化內容卡片 */
     .structured {
       background: rgba(15, 23, 42, 0.5);
       border: 1px solid var(--card-border);
@@ -164,10 +435,7 @@
       font-weight: 500;
     }
 
-    .structured .value {
-      flex: 1;
-      word-break: break-all;
-    }
+    .structured .value { flex: 1; word-break: break-all; }
 
     .structured a {
       color: #a5b4fc;
@@ -188,7 +456,6 @@
     }
     .copy-btn:hover { background: rgba(99,102,241,0.35); }
 
-    /* 上傳區 */
     .upload-bar {
       background: var(--card);
       backdrop-filter: blur(12px);
@@ -252,7 +519,6 @@
 
     #fileInput { display: none; }
 
-    /* 相機 */
     #camera-container {
       display: none;
       margin-bottom: 20px;
@@ -276,7 +542,6 @@
       backdrop-filter: blur(4px);
     }
 
-    /* 歷史 */
     .history-section h2 {
       font-size: 1rem;
       color: var(--text-muted);
@@ -301,6 +566,7 @@
       padding: 15px 17px;
       font-size: 0.92rem;
       transition: all 0.2s;
+      position: relative;
     }
     .history-item:hover {
       background: rgba(30, 41, 59, 0.85);
@@ -314,6 +580,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding-right: 42px;
     }
 
     .history-item .content {
@@ -353,59 +620,267 @@
     .toast.show { opacity: 1; }
     .toast.error { background: #7f1d1d; }
     .toast.success { background: #065f46; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 40;
+    }
+    .sidebar-overlay.show { display: block; }
+
+    @media (max-width: 860px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar.collapsed { transform: translateX(-100%); }
+      .main { margin-left: 0; }
+      .main.sidebar-collapsed { margin-left: 0; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>QR Code 即時解讀</h1>
-      <p>貼上 / 上傳 / 掃描 → 自動解讀（支援網址・文字・簡訊・電話・Email・WiFi）</p>
-    </header>
-
-    <div id="currentResult" class="current-result empty">
-      尚未掃描任何 QR Code
-    </div>
-
-    <div id="camera-container">
-      <video id="cameraVideo" playsinline></video>
-      <button class="close-cam" onclick="stopCamera()">×</button>
-    </div>
-
-    <div class="upload-bar" id="uploadBar">
-      <p>📋 直接 <b>Ctrl + V</b> 貼上圖片　或　選擇以下方式</p>
-      <div class="btn-group">
-        <button class="btn" onclick="document.getElementById('fileInput').click()">
-          📁 上傳圖片
-        </button>
-        <button class="btn btn-secondary" onclick="startCamera()">
-          📷 用手機掃描
-        </button>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2 id="i18n-fav-title">書籤</h2>
+        <span class="sidebar-count" id="favCount">0</span>
       </div>
-      <input type="file" id="fileInput" accept="image/*" />
-    </div>
+      <div class="fav-list" id="favList"></div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <div class="history-section">
-      <h2>
-        <span>歷史記錄 <small style="font-weight:400">(最多 10 筆)</small></span>
-        <button class="btn btn-secondary" style="padding:6px 14px;font-size:0.8rem" onclick="clearHistory()">清除全部</button>
-      </h2>
-      <div id="historyList" class="history-list"></div>
+    <div class="main" id="main">
+      <div class="top-bar">
+        <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" aria-label="Menu" title="選單">☰</button>
+        <select class="lang-select" id="langSelect" onchange="changeLang(this.value)">
+          <option value="zh-Hant">繁體中文</option>
+          <option value="en">English</option>
+          <option value="ja">日本語</option>
+        </select>
+      </div>
+
+      <div class="container">
+        <header>
+          <h1 id="i18n-title">QR Code 即時解讀</h1>
+          <p class="subtitle" id="i18n-subtitle">貼上 / 上傳 / 掃描 → 自動解讀（支援網址・文字・簡訊・電話・Email・WiFi）</p>
+          <p class="star-hint" id="i18n-star-hint">提示：點擊右上角 ★ 可加入書籤；點擊黃色★解除書籤</p>
+        </header>
+
+        <div id="currentResult" class="current-result empty">
+          <span id="i18n-empty-result">尚未掃描任何 QR Code</span>
+        </div>
+
+        <div id="camera-container">
+          <video id="cameraVideo" playsinline></video>
+          <button class="close-cam" onclick="stopCamera()">×</button>
+        </div>
+
+        <div class="upload-bar" id="uploadBar">
+          <p id="i18n-upload-hint">📋 直接 <b>Ctrl + V</b> 貼上圖片　或　選擇以下方式</p>
+          <div class="btn-group">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">
+              <span id="i18n-btn-upload">📁 上傳圖片</span>
+            </button>
+            <button class="btn btn-secondary" onclick="startCamera()">
+              <span id="i18n-btn-camera">📷 用手機掃描</span>
+            </button>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" />
+        </div>
+
+        <div class="history-section">
+          <h2>
+            <span id="i18n-history-title">歷史記錄 <small style="font-weight:400">(最多 10 筆)</small></span>
+            <button class="btn btn-secondary" style="padding:6px 14px;font-size:0.8rem" onclick="clearHistory()" id="i18n-btn-clear">清除全部</button>
+          </h2>
+          <div id="historyList" class="history-list"></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div id="toast" class="toast"></div>
 
   <script>
+    const i18n = {
+      'zh-Hant': {
+        title: 'QR Code 即時解讀',
+        subtitle: '貼上 / 上傳 / 掃描 → 自動解讀（支援網址・文字・簡訊・電話・Email・WiFi）',
+        starHint: '提示：點擊右上角 ★ 可加入書籤',
+        emptyResult: '尚未掃描任何 QR Code',
+        uploadHint: '📋 直接 <b>Ctrl + V</b> 貼上圖片　或　選擇以下方式',
+        btnUpload: '📁 上傳圖片',
+        btnCamera: '📷 用手機掃描',
+        historyTitle: '歷史記錄 <small style="font-weight:400">(最多 10 筆)</small>',
+        btnClear: '清除全部',
+        historyEmpty: '暫無歷史記錄',
+        favTitle: '書籤',
+        favEmpty: '尚未加入任何書籤<br>按星星 ★ 即可收藏',
+        expand: '展開全部',
+        collapse: '收合',
+        copy: '複製',
+        copied: '已複製！',
+        success: '解讀成功！',
+        fail: '未能識別 QR Code',
+        cameraFail: '無法開啟相機：',
+        cleared: '已清除歷史',
+        confirmClear: '確定要清除所有歷史記錄？',
+        addedFav: '已加入書籤',
+        removedFav: '已移除書籤',
+        rename: '更改名稱',
+        save: '儲存',
+        cancel: '取消',
+        unnamed: '未命名',
+        namePlaceholder: '輸入名稱…',
+        type_WiFi: 'WiFi',
+        type_電話: '電話',
+        type_簡訊: '簡訊',
+        type_Email: 'Email',
+        type_網址: '網址',
+        type_文字: '文字',
+        label_ssid: '名稱 (SSID)',
+        label_password: '密碼',
+        label_encryption: '加密',
+        label_phone: '電話',
+        label_body: '內容',
+        label_to: '收件人',
+        label_subject: '主旨',
+        label_url: '網址',
+        none: '（無）',
+      },
+      en: {
+        title: 'QR Code Instant Decoder',
+        subtitle: 'Paste / Upload / Scan → Auto decode (URL · Text · SMS · Phone · Email · WiFi)',
+        starHint: 'Tip: Click the ★ at top-right to add to Bookmarks',
+        emptyResult: 'No QR Code scanned yet',
+        uploadHint: '📋 Press <b>Ctrl + V</b> to paste image　or　choose below',
+        btnUpload: '📁 Upload Image',
+        btnCamera: '📷 Scan with Camera',
+        historyTitle: 'History <small style="font-weight:400">(max 10)</small>',
+        btnClear: 'Clear All',
+        historyEmpty: 'No history yet',
+        favTitle: 'Bookmarks',
+        favEmpty: 'No bookmarks yet<br>Tap the star ★ to save',
+        expand: 'Expand',
+        collapse: 'Collapse',
+        copy: 'Copy',
+        copied: 'Copied!',
+        success: 'Decoded successfully!',
+        fail: 'Could not recognize QR Code',
+        cameraFail: 'Cannot open camera: ',
+        cleared: 'History cleared',
+        confirmClear: 'Clear all history records?',
+        addedFav: 'Added to Bookmarks',
+        removedFav: 'Removed from Bookmarks',
+        rename: 'Rename',
+        save: 'Save',
+        cancel: 'Cancel',
+        unnamed: 'Untitled',
+        namePlaceholder: 'Enter a name…',
+        type_WiFi: 'WiFi',
+        type_電話: 'Phone',
+        type_簡訊: 'SMS',
+        type_Email: 'Email',
+        type_網址: 'URL',
+        type_文字: 'Text',
+        label_ssid: 'SSID',
+        label_password: 'Password',
+        label_encryption: 'Encryption',
+        label_phone: 'Phone',
+        label_body: 'Body',
+        label_to: 'To',
+        label_subject: 'Subject',
+        label_url: 'URL',
+        none: '(none)',
+      },
+      ja: {
+        title: 'QRコード即時解読',
+        subtitle: '貼り付け / アップロード / スキャン → 自動解読（URL・テキスト・SMS・電話・Email・WiFi）',
+        starHint: 'ヒント：右上の ★ をタップしてブックマークに追加',
+        emptyResult: 'まだQRコードがありません',
+        uploadHint: '📋 <b>Ctrl + V</b> で画像を貼り付け　または　以下を選択',
+        btnUpload: '📁 画像をアップロード',
+        btnCamera: '📷 カメラでスキャン',
+        historyTitle: '履歴 <small style="font-weight:400">(最大10件)</small>',
+        btnClear: 'すべて削除',
+        historyEmpty: '履歴がありません',
+        favTitle: 'ブックマーク',
+        favEmpty: 'ブックマークはまだありません<br>★ をタップして保存',
+        expand: 'すべて表示',
+        collapse: '閉じる',
+        copy: 'コピー',
+        copied: 'コピーしました！',
+        success: '解読成功！',
+        fail: 'QRコードを認識できませんでした',
+        cameraFail: 'カメラを開けません：',
+        cleared: '履歴を削除しました',
+        confirmClear: 'すべての履歴を削除しますか？',
+        addedFav: 'ブックマークに追加しました',
+        removedFav: 'ブックマークから削除しました',
+        rename: '名前変更',
+        save: '保存',
+        cancel: 'キャンセル',
+        unnamed: '無題',
+        namePlaceholder: '名前を入力…',
+        type_WiFi: 'WiFi',
+        type_電話: '電話',
+        type_簡訊: 'SMS',
+        type_Email: 'Email',
+        type_網址: 'URL',
+        type_文字: 'テキスト',
+        label_ssid: 'SSID',
+        label_password: 'パスワード',
+        label_encryption: '暗号化',
+        label_phone: '電話',
+        label_body: '内容',
+        label_to: '宛先',
+        label_subject: '件名',
+        label_url: 'URL',
+        none: '（なし）',
+      }
+    };
+
+    let lang = localStorage.getItem('qr_lang') || 'zh-Hant';
+    function t(key) {
+      return (i18n[lang] && i18n[lang][key]) || i18n['zh-Hant'][key] || key;
+    }
+
+    function applyI18n() {
+      document.getElementById('i18n-title').textContent = t('title');
+      document.getElementById('i18n-subtitle').textContent = t('subtitle');
+      document.getElementById('i18n-star-hint').textContent = t('starHint');
+      document.getElementById('i18n-upload-hint').innerHTML = t('uploadHint');
+      document.getElementById('i18n-btn-upload').textContent = t('btnUpload');
+      document.getElementById('i18n-btn-camera').textContent = t('btnCamera');
+      document.getElementById('i18n-history-title').innerHTML = t('historyTitle');
+      document.getElementById('i18n-btn-clear').textContent = t('btnClear');
+      document.getElementById('i18n-fav-title').textContent = t('favTitle');
+      document.documentElement.lang = lang === 'zh-Hant' ? 'zh-Hant' : lang;
+      document.getElementById('langSelect').value = lang;
+      renderCurrent();
+      renderHistory();
+      renderFavorites();
+    }
+
+    function changeLang(val) {
+      lang = val;
+      localStorage.setItem('qr_lang', lang);
+      applyI18n();
+    }
+
     let currentData = null;
     let history = [];
+    let favorites = [];
     let cameraStream = null;
     let scanning = false;
+    let sidebarOpen = true;
+    // 正在編輯名稱的 id（同一時間只編一個）
+    let editingNameId = null;
 
-    // ===== 解析不同類型 =====
     function parseQR(text) {
       text = text.trim();
 
-      // WiFi
       if (text.toUpperCase().startsWith('WIFI:')) {
         const parts = {};
         text.slice(5).split(';').forEach(p => {
@@ -413,23 +888,13 @@
           if (k) parts[k.toUpperCase()] = v.join(':');
         });
         return {
-          type: 'WiFi',
-          raw: text,
-          data: {
-            ssid: parts.S || '',
-            password: parts.P || '',
-            encryption: parts.T || '無',
-            hidden: parts.H === 'true'
-          }
+          type: 'WiFi', raw: text,
+          data: { ssid: parts.S || '', password: parts.P || '', encryption: parts.T || '無', hidden: parts.H === 'true' }
         };
       }
-
-      // 電話
       if (text.toLowerCase().startsWith('tel:')) {
         return { type: '電話', raw: text, data: { number: text.slice(4) } };
       }
-
-      // 簡訊
       if (text.toLowerCase().startsWith('sms:') || text.toUpperCase().startsWith('SMSTO:')) {
         let number = '', body = '';
         if (text.toUpperCase().startsWith('SMSTO:')) {
@@ -443,18 +908,11 @@
         }
         return { type: '簡訊', raw: text, data: { number, body } };
       }
-
-      // Email (mailto 或 MATMSG)
       if (text.toLowerCase().startsWith('mailto:')) {
         const url = new URL(text);
         return {
-          type: 'Email',
-          raw: text,
-          data: {
-            to: url.pathname,
-            subject: url.searchParams.get('subject') || '',
-            body: url.searchParams.get('body') || ''
-          }
+          type: 'Email', raw: text,
+          data: { to: url.pathname, subject: url.searchParams.get('subject') || '', body: url.searchParams.get('body') || '' }
         };
       }
       if (text.toUpperCase().startsWith('MATMSG:')) {
@@ -464,39 +922,29 @@
           if (k) parts[k.toUpperCase()] = v.join(':');
         });
         return {
-          type: 'Email',
-          raw: text,
-          data: {
-            to: parts.TO || '',
-            subject: parts.SUB || '',
-            body: parts.BODY || ''
-          }
+          type: 'Email', raw: text,
+          data: { to: parts.TO || '', subject: parts.SUB || '', body: parts.BODY || '' }
         };
       }
-
-      // URL
       try {
         const u = new URL(text);
         if (u.protocol === 'http:' || u.protocol === 'https:') {
           return { type: '網址', raw: text, data: { url: text } };
         }
       } catch {}
-
-      // 預設文字
       return { type: '文字', raw: text, data: { text } };
     }
 
-    // ===== 儲存 =====
     function loadFromStorage() {
       try {
         const saved = localStorage.getItem('qr_history');
         if (saved) history = JSON.parse(saved);
         const curr = localStorage.getItem('qr_current');
-        if (curr) {
-          currentData = JSON.parse(curr);
-          renderCurrent();
-        }
-        renderHistory();
+        if (curr) currentData = JSON.parse(curr);
+        const fav = localStorage.getItem('qr_favorites');
+        if (fav) favorites = JSON.parse(fav);
+        const side = localStorage.getItem('qr_sidebar');
+        if (side === '0') sidebarOpen = false;
       } catch (e) {}
     }
 
@@ -505,18 +953,20 @@
         localStorage.setItem('qr_history', JSON.stringify(history));
         if (currentData) localStorage.setItem('qr_current', JSON.stringify(currentData));
         else localStorage.removeItem('qr_current');
+        localStorage.setItem('qr_favorites', JSON.stringify(favorites));
+        localStorage.setItem('qr_sidebar', sidebarOpen ? '1' : '0');
       } catch (e) {}
     }
 
     function showToast(msg, type = 'success') {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = 'toast show ' + type;
-      setTimeout(() => t.classList.remove('show'), 2400);
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast show ' + type;
+      setTimeout(() => el.classList.remove('show'), 2400);
     }
 
     function formatTime(ts) {
-      return new Date(ts).toLocaleString('zh-HK', {
+      return new Date(ts).toLocaleString(lang === 'en' ? 'en-US' : lang === 'ja' ? 'ja-JP' : 'zh-HK', {
         month: '2-digit', day: '2-digit',
         hour: '2-digit', minute: '2-digit', second: '2-digit'
       });
@@ -529,44 +979,210 @@
     }
 
     function copyText(text) {
-      navigator.clipboard.writeText(text).then(() => showToast('已複製！'));
+      navigator.clipboard.writeText(text).then(() => showToast(t('copied')));
     }
 
-    // ===== 渲染結構化內容 =====
-    function renderStructured(parsed) {
+    function typeLabel(type) {
+      return t('type_' + type) || type;
+    }
+
+    // ===== Rename（按掣先改）=====
+    function startEditName(id) {
+      editingNameId = id;
+      renderCurrent();
+      renderHistory();
+      renderFavorites();
+      // focus input
+      setTimeout(() => {
+        const input = document.querySelector(`input.name-input[data-id="${id}"]`);
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      }, 30);
+    }
+
+    function cancelEditName() {
+      editingNameId = null;
+      renderCurrent();
+      renderHistory();
+      renderFavorites();
+    }
+
+    function saveName(id) {
+      const input = document.querySelector(`input.name-input[data-id="${id}"]`);
+      const name = input ? input.value.trim() : '';
+      if (currentData && currentData.id === id) currentData.customName = name;
+      history = history.map(h => h.id === id ? { ...h, customName: name } : h);
+      favorites = favorites.map(f => f.id === id ? { ...f, customName: name } : f);
+      editingNameId = null;
+      saveToStorage();
+      renderCurrent();
+      renderHistory();
+      renderFavorites();
+    }
+
+    /** 顯示模式 or 編輯模式 */
+    function nameRowHtml(item, compact = false) {
+      const hasName = !!(item.customName && item.customName.trim());
+      if (editingNameId === item.id) {
+        return `
+          <div class="name-row">
+            <input type="text" class="name-input" data-id="${item.id}"
+              placeholder="${t('namePlaceholder')}"
+              value="${escapeHtml(item.customName || '')}"
+              onkeydown="if(event.key==='Enter'){saveName('${item.id}');} if(event.key==='Escape'){cancelEditName();}">
+            <button class="name-save-btn" onclick="saveName('${item.id}')">${t('save')}</button>
+            <button class="name-cancel-btn" onclick="cancelEditName()">${t('cancel')}</button>
+          </div>
+        `;
+      }
+      // 顯示模式
+      const label = hasName
+        ? `<span class="name-display">${escapeHtml(item.customName)}</span>`
+        : `<span class="name-display placeholder">${t('unnamed')}</span>`;
+      return `
+        <div class="name-row">
+          ${label}
+          <button class="edit-name-btn" onclick="startEditName('${item.id}')">${t('rename')}</button>
+        </div>
+      `;
+    }
+
+    // ===== Bookmarks =====
+    function isBookmarked(id) {
+      return favorites.some(f => f.id === id);
+    }
+
+    function toggleBookmark(item) {
+      if (!item || !item.id) return;
+      let latest = item;
+      if (currentData && currentData.id === item.id) latest = currentData;
+      else {
+        const fromHist = history.find(h => h.id === item.id);
+        if (fromHist) latest = fromHist;
+      }
+
+      const idx = favorites.findIndex(f => f.id === item.id);
+      if (idx >= 0) {
+        favorites.splice(idx, 1);
+        showToast(t('removedFav'));
+      } else {
+        favorites.unshift({ ...latest });
+        showToast(t('addedFav'));
+      }
+      saveToStorage();
+      renderCurrent();
+      renderHistory();
+      renderFavorites();
+    }
+
+    function removeFavorite(id) {
+      favorites = favorites.filter(f => f.id !== id);
+      saveToStorage();
+      renderCurrent();
+      renderHistory();
+      renderFavorites();
+      showToast(t('removedFav'));
+    }
+
+    function renderFavorites() {
+      const list = document.getElementById('favList');
+      document.getElementById('favCount').textContent = favorites.length;
+
+      if (favorites.length === 0) {
+        list.innerHTML = `<div class="fav-empty">${t('favEmpty')}</div>`;
+        return;
+      }
+
+      list.innerHTML = favorites.map(item => {
+        let preview = item.raw || '';
+        if (preview.length > 90) preview = preview.slice(0, 90) + '…';
+
+        const hasName = !!(item.customName && item.customName.trim());
+        let nameBlock = '';
+        if (editingNameId === item.id) {
+          nameBlock = `
+            <div class="fav-name-row">
+              <input type="text" class="name-input" data-id="${item.id}"
+                placeholder="${t('namePlaceholder')}"
+                value="${escapeHtml(item.customName || '')}"
+                onkeydown="if(event.key==='Enter'){saveName('${item.id}');} if(event.key==='Escape'){cancelEditName();}">
+            </div>
+            <div class="fav-name-row" style="margin-bottom:8px;gap:6px">
+              <button class="name-save-btn" onclick="saveName('${item.id}')">${t('save')}</button>
+              <button class="name-cancel-btn" onclick="cancelEditName()">${t('cancel')}</button>
+            </div>
+          `;
+        } else {
+          nameBlock = `
+            <div class="fav-name-row">
+              <span class="fav-name ${hasName ? '' : 'placeholder'}">${hasName ? escapeHtml(item.customName) : t('unnamed')}</span>
+              <button class="edit-name-btn" onclick="startEditName('${item.id}')">${t('rename')}</button>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="fav-item">
+            <button class="fav-remove" title="Remove" onclick="removeFavorite('${item.id}')">★</button>
+            <div class="fav-meta">
+              <span class="result-type">${typeLabel(item.type)}</span>
+              <span>${formatTime(item.time)}</span>
+            </div>
+            ${nameBlock}
+            <div class="fav-content">${escapeHtml(preview)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderStructured(parsed, idPrefix = '') {
       const d = parsed.data;
       let html = '<div class="structured">';
 
       if (parsed.type === 'WiFi') {
         html += `
-          <div class="row"><span class="label">名稱 (SSID)</span><span class="value">${escapeHtml(d.ssid)} <button class="copy-btn" onclick="copyText('${escapeHtml(d.ssid)}')">複製</button></span></div>
-          <div class="row"><span class="label">密碼</span><span class="value">${escapeHtml(d.password || '（無）')} <button class="copy-btn" onclick="copyText('${escapeHtml(d.password)}')">複製</button></span></div>
-          <div class="row"><span class="label">加密</span><span class="value">${escapeHtml(d.encryption)}</span></div>
+          <div class="row"><span class="label">${t('label_ssid')}</span><span class="value">${escapeHtml(d.ssid)} <button class="copy-btn" onclick="copyText('${escapeHtml(d.ssid)}')">${t('copy')}</button></span></div>
+          <div class="row"><span class="label">${t('label_password')}</span><span class="value">${escapeHtml(d.password || t('none'))} <button class="copy-btn" onclick="copyText('${escapeHtml(d.password)}')">${t('copy')}</button></span></div>
+          <div class="row"><span class="label">${t('label_encryption')}</span><span class="value">${escapeHtml(d.encryption)}</span></div>
         `;
       } else if (parsed.type === '電話') {
-        html += `<div class="row"><span class="label">電話</span><span class="value"><a href="tel:${escapeHtml(d.number)}">${escapeHtml(d.number)}</a></span></div>`;
+        html += `<div class="row"><span class="label">${t('label_phone')}</span><span class="value"><a href="tel:${escapeHtml(d.number)}">${escapeHtml(d.number)}</a></span></div>`;
       } else if (parsed.type === '簡訊') {
         html += `
-          <div class="row"><span class="label">電話</span><span class="value"><a href="sms:${escapeHtml(d.number)}">${escapeHtml(d.number)}</a></span></div>
-          <div class="row"><span class="label">內容</span><span class="value">${escapeHtml(d.body || '（無）')}</span></div>
+          <div class="row"><span class="label">${t('label_phone')}</span><span class="value"><a href="sms:${escapeHtml(d.number)}">${escapeHtml(d.number)}</a></span></div>
+          <div class="row"><span class="label">${t('label_body')}</span><span class="value">${escapeHtml(d.body || t('none'))}</span></div>
         `;
       } else if (parsed.type === 'Email') {
         html += `
-          <div class="row"><span class="label">收件人</span><span class="value"><a href="mailto:${escapeHtml(d.to)}">${escapeHtml(d.to)}</a></span></div>
-          ${d.subject ? `<div class="row"><span class="label">主旨</span><span class="value">${escapeHtml(d.subject)}</span></div>` : ''}
-          ${d.body ? `<div class="row"><span class="label">內容</span><span class="value">${escapeHtml(d.body)}</span></div>` : ''}
+          <div class="row"><span class="label">${t('label_to')}</span><span class="value"><a href="mailto:${escapeHtml(d.to)}">${escapeHtml(d.to)}</a></span></div>
+          ${d.subject ? `<div class="row"><span class="label">${t('label_subject')}</span><span class="value">${escapeHtml(d.subject)}</span></div>` : ''}
+          ${d.body ? `<div class="row"><span class="label">${t('label_body')}</span><span class="value">${escapeHtml(d.body)}</span></div>` : ''}
         `;
       } else if (parsed.type === '網址') {
-        html += `<div class="row"><span class="label">網址</span><span class="value"><a href="${escapeHtml(d.url)}" target="_blank" rel="noopener">${escapeHtml(d.url)}</a></span></div>`;
+        html += `<div class="row"><span class="label">${t('label_url')}</span><span class="value"><a href="${escapeHtml(d.url)}" target="_blank" rel="noopener">${escapeHtml(d.url)}</a></span></div>`;
       } else {
-        html += `<div class="result-content" id="currContent">${escapeHtml(d.text)}</div>`;
+        html += `<div class="result-content" id="${idPrefix}Content">${escapeHtml(d.text)}</div>`;
       }
-
       html += '</div>';
       return html;
     }
 
-    // ===== 核心處理 =====
+    function starHtml(item) {
+      const active = isBookmarked(item.id) ? 'active' : '';
+      return `<button class="star-btn ${active}" data-id="${item.id}" onclick="onStarClick(this)" title="Bookmark">★</button>`;
+    }
+
+    function onStarClick(btn) {
+      const id = btn.getAttribute('data-id');
+      let item = null;
+      if (currentData && currentData.id === id) item = currentData;
+      if (!item) item = history.find(h => h.id === id);
+      if (!item) item = favorites.find(f => f.id === id);
+      if (item) toggleBookmark(item);
+    }
+
     function decodeImage(img) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -580,45 +1196,45 @@
 
     function processResult(text) {
       if (!text) {
-        showToast('未能識別 QR Code', 'error');
+        showToast(t('fail'), 'error');
         return;
       }
-
       if (currentData) {
         history.unshift(currentData);
         if (history.length > 10) history = history.slice(0, 10);
       }
-
       const parsed = parseQR(text);
       currentData = {
         ...parsed,
-        time: Date.now()
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+        time: Date.now(),
+        customName: ''
       };
-
+      editingNameId = null;
       saveToStorage();
       renderCurrent();
       renderHistory();
-      showToast('解讀成功！');
+      showToast(t('success'));
     }
 
     function renderCurrent() {
       const el = document.getElementById('currentResult');
       if (!currentData) {
         el.className = 'current-result empty';
-        el.innerHTML = '尚未掃描任何 QR Code';
+        el.innerHTML = `<span id="i18n-empty-result">${t('emptyResult')}</span>`;
         return;
       }
-
       el.className = 'current-result';
       el.innerHTML = `
+        ${starHtml(currentData)}
         <div class="result-header">
-          <span class="result-type">${currentData.type}</span>
+          <span class="result-type">${typeLabel(currentData.type)}</span>
           <span>${formatTime(currentData.time)}</span>
         </div>
-        ${renderStructured(currentData)}
-        ${currentData.type === '文字' ? '<div class="expand-btn" id="currExpand" style="display:none">展開全部</div>' : ''}
+        ${nameRowHtml(currentData)}
+        ${renderStructured(currentData, 'curr')}
+        ${currentData.type === '文字' ? `<div class="expand-btn" id="currExpand" style="display:none">${t('expand')}</div>` : ''}
       `;
-
       if (currentData.type === '文字') {
         const contentEl = document.getElementById('currContent');
         const expandBtn = document.getElementById('currExpand');
@@ -633,25 +1249,26 @@
     function renderHistory() {
       const list = document.getElementById('historyList');
       if (history.length === 0) {
-        list.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;padding:12px 0">暫無歷史記錄</div>';
+        list.innerHTML = `<div style="color:var(--text-muted);font-size:0.9rem;padding:12px 0">${t('historyEmpty')}</div>`;
         return;
       }
-
       list.innerHTML = history.map((item, idx) => {
+        if (!item.id) item.id = 'h' + item.time + idx;
         let body = '';
         if (item.type === '文字') {
           body = `<div class="content" id="histContent${idx}">${escapeHtml(item.raw)}</div>
-                  <div class="expand-btn" id="histExpand${idx}" style="display:none">展開全部</div>`;
+                  <div class="expand-btn" id="histExpand${idx}" style="display:none">${t('expand')}</div>`;
         } else {
-          body = renderStructured(item);
+          body = renderStructured(item, 'hist' + idx);
         }
-
         return `
           <div class="history-item">
+            ${starHtml(item)}
             <div class="meta">
-              <span class="result-type">${item.type}</span>
+              <span class="result-type">${typeLabel(item.type)}</span>
               <span>${formatTime(item.time)}</span>
             </div>
+            ${nameRowHtml(item)}
             ${body}
           </div>
         `;
@@ -673,23 +1290,61 @@
     function toggleExpand(contentEl, btn) {
       if (contentEl.classList.contains('collapsed')) {
         contentEl.classList.remove('collapsed');
-        btn.textContent = '收合';
+        btn.textContent = t('collapse');
       } else {
         contentEl.classList.add('collapsed');
-        btn.textContent = '展開全部';
+        btn.textContent = t('expand');
       }
     }
 
     function clearHistory() {
-      if (confirm('確定要清除所有歷史記錄？')) {
+      if (confirm(t('confirmClear'))) {
         history = [];
         saveToStorage();
         renderHistory();
-        showToast('已清除歷史');
+        showToast(t('cleared'));
       }
     }
 
-    // ===== 事件 =====
+    function applySidebarState() {
+      const sidebar = document.getElementById('sidebar');
+      const main = document.getElementById('main');
+      const overlay = document.getElementById('sidebarOverlay');
+      const isMobile = window.innerWidth <= 860;
+      if (isMobile) {
+        sidebar.classList.remove('collapsed');
+        main.classList.remove('sidebar-collapsed');
+        if (sidebarOpen) {
+          sidebar.classList.add('open');
+          overlay.classList.add('show');
+        } else {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('show');
+        }
+      } else {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+        if (sidebarOpen) {
+          sidebar.classList.remove('collapsed');
+          main.classList.remove('sidebar-collapsed');
+        } else {
+          sidebar.classList.add('collapsed');
+          main.classList.add('sidebar-collapsed');
+        }
+      }
+      saveToStorage();
+    }
+
+    function toggleSidebar() {
+      sidebarOpen = !sidebarOpen;
+      applySidebarState();
+    }
+    function closeSidebar() {
+      sidebarOpen = false;
+      applySidebarState();
+    }
+    window.addEventListener('resize', applySidebarState);
+
     document.addEventListener('paste', (e) => {
       const items = e.clipboardData?.items;
       if (!items) return;
@@ -741,7 +1396,7 @@
         scanning = true;
         requestAnimationFrame(scanFrame);
       } catch (err) {
-        showToast('無法開啟相機：' + err.message, 'error');
+        showToast(t('cameraFail') + err.message, 'error');
       }
     }
 
@@ -769,6 +1424,8 @@
     }
 
     loadFromStorage();
+    applyI18n();
+    applySidebarState();
   </script>
 </body>
 </html>
